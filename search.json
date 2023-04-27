@@ -9,9 +9,93 @@
   {
     "objectID": "changelog.html",
     "href": "changelog.html",
-    "title": "Molecular Nodes",
+    "title": "Changelog",
     "section": "",
     "text": "All notable changes to this project will be documented in this file.\nThe format is based on Keep a Changelog, and this project adheres to Semantic Versioning.\n\n\n\n\n\nAdds int attribute for secondary structure of proteins when imported via Biotite. Atoms in a residue are given an integer value to specificy their secondary structure (#160):\n\n0 = ’’ = non-protein or not assigned by biotite annotate_sse\n1 = a = alpha helix\n2 = b = beta sheet\n3 = c = coil\n\n\n\n\n\n\nFix consistency in load_trajectory function call. custom_selections were being taken from the GUI from inside the md.load_trajectory() function, rather being passed in as a function which is now the case. (#182)\n\n\n\n\n\n\n\n\nBumped version of biotite to install 0.36.1\n\n\n\n\n\n\n\n\n\n\n\nFix for custom selections panel with MDAnalysis import.\nBlender crashed when using MDAnlysis import filter, if bonds were present in the topology. (#177)\n\nFixed created during refactor that disabled the custom selection list for MD import.\n\n\n\n\n\n\n\nCustom text input for creating selections of res_id ranges and indivual numbers thanks to @YaoYinYing (#149), enabling quicker creation of complex selections inside of Molecular Nodes.\n\n\n\n\n\nRefactor of package installation via pip, to help with those who require pip mirrors and provide more information when installation fails on ARM macs. (#162)\nRemoved redundant python submodules and general cleanup\n\n\n\n\n\n\n\n\n\n\n\nChange translations for other languages to bpy.app.translations.pgettext_data() from bpy.app.translations.pgettext() which reduces potential conflicts with other addons. (#147)\nFixed chain_id_unique not being added when importing via MDAnalysis, stopping custom nodes relying on chain information to break. (#156)\n\n\n\n\n\n\n\n\nPanel for adding multiple selection strings, which will become boolean attributes on the imported model when importing via MDAnalysis.\n\n\n\n\n\nBall and stick node sphers now support field input for scaling the radius\nError with initial node setup breaking when in non-english Blender UI (#139) contributed by @YaoYinYing\nProblems with biological assemblies failling on larger structures. (#143)\nProblem with Animate Frames node defaulting to wrong from range on start\n\n\n\n\n\n\n\n\n\n\n\nIssue on linux and with newer versions of Numpy where np.bool is deprecated and was erroring on import.\n\n\n\n\n\n\n\n\nmulti-model b_factor is added when importing from .pdb files via biotite #133\n‘Invert’ field option to atom_properties and other selection nodes to optionally invert the selection\nAdded better detection of ligands and modifcations (such as sugars) and a separate selection node for them. Currently ligands are stored on the res_name attribute, starting at 100 and incrementing one for each unique ligand.\n\n\n\n\n\ninclude_bonds option was not being utilised on MD import #132\nMOL_animate_res_wiggle was wiggling the OXT (res_name == 38) oxygen when a peptide chain ended. Added additional selection to not wiggle this atom, which should only ever appear when a peptide chain terminates.\nfixed import of vdw_radii for elements not supported by biotite (such as Fe) by moving vdw_radii to the data dictionary rather than relying on a function from biotite which had a limited dictionary for vdw_radii lookup\n\n\n\n\n\n\n\n\natom_name attribute, which is a numerical representation of the atom name (C, CA, C5 etc)\n\nDicussed in #118\nAllows for more precise selections for new styling and animation nodes\n\nReimplemented amino acid ‘wiggle’ node: using the atom_name attribute\n\n3x faster with the improved atom_name attribute and refactor of the underlying nodes\n\nReimplemented the amino acid to curve node\nRibbon Style Nucleic: A ribbon representation for nucleic acids to complement the ribbon represenation of the proteins from alpha carbons. Enabled now thanks to the atom_name attribute.\nCapturing the Index field in the selection node before the selection occurs, and added an Index field input to the MOL_animate_frames node to enable selection to occur before animating between frames, if the Pre-Sel Index field is used in the Index field of the MOL_animate_frames node\nAdded cutoff field for limiting the interpolation of atoms between frames based on a distance cutoff\nAdded bonds through MDAnalysis import when a trajectory supports it #129\nAdded is_solvent, is_nucleic and is_peptide boolean attributes when importing via MDAnalysis\nAdded frame-specific attribute occupancy which is added to each frame of the trajectory when imported via MDAnalysis. #128\n\n\n\n\n\nChanged naming of MOL_style_atoms to MOL_style_atoms_cycles and MOL_style_ribbon to MOL_style_ribbon_protein\n\n\n\n\n\n\n\n\nCHANGELOG.md for tracking changes to the project\nIssue templates for GitHub issues\nProper support for Fields for ribbon width, enabling ‘licorice’ representation amoung others\nTooltips documentation for each of the custom node groups that can be added in Geometry Nodes\nMore selection nodes for distance, XYZ slice and whole residues.\nCustom selections using a string when importing via MDAnalysis #123\nAdded option to disable interpolation of atom positions between frames\nAdded node for animating any field between frames of a trajectory (no fields currently added on import, but used in the new Aniamte Frames backend)\nUVs are now available for the ribbon mesh style, idea from ErikMarklund and implemented by quellenform\n\n\n\n\n\nError when defaulting to connect_via_distance() when importing with ‘Find Bonds’ enabled\nAdding of a color node which was mis-labelled and couldn’t be added\nNon-.gro topology files were failling to add vdw_radii attribute #124\nRemove use of np.int which is now deprecated and was causing errors when linking python on M1 Mac\nAttributes now available on ribbon mesh which are sampled from backbone\nChanged starting material to be appended instead of created, which should avoid duplication of material.\n\n\n\n\n\n\n\n\nError on reporting the success of improting a molecule\n\n\n\n\n\n\n\n\nRemove usage of Atomium and switched to Biotite for most internal structural file parsing\nRemoved reliance upon Serpens to build the addon. Can now be developed by anybody without the requirements of additional Blender addons.\n\nAspects of the addon can now have changes tracked properly by git, rather than inside a binary .blend Serpens file.\nNow also allows easier and clearer contributions from others who wish to contribute\nCustom node trees still remain opaque to git unfortunately\n\nAttributes are now created and stored on the molecular model itself, removing the need for properties models that store the data XYZ positions. Makes the import process clearer, more robust and more easily expandable.\nBond information is available by default as edges of the mesh along with bond types\nImprove MDAnalysis installation and usage internally\nExpose operators and functions to Blender Python console to enable user scripting with the addon\n\nimport MolecularNodes as mn\n\n# to fetch structures from the protein data bank\nstruc_list = ['4ozs', '1xi4', '6n2y']\nfor pdb in struc_list:\n    mn.load.molecule_rcsb(pdb, starting_style = 1)\n\n# to open a local structure file\nmn.load.molecule_local('file_path_here.pdb', 'SomeMoleculeName', starting_style = 2)"
+  },
+  {
+    "objectID": "changelog.html#unreleased",
+    "href": "changelog.html#unreleased",
+    "title": "Changelog",
+    "section": "",
+    "text": "Adds int attribute for secondary structure of proteins when imported via Biotite. Atoms in a residue are given an integer value to specificy their secondary structure (#160):\n\n0 = ’’ = non-protein or not assigned by biotite annotate_sse\n1 = a = alpha helix\n2 = b = beta sheet\n3 = c = coil\n\n\n\n\n\n\nFix consistency in load_trajectory function call. custom_selections were being taken from the GUI from inside the md.load_trajectory() function, rather being passed in as a function which is now the case. (#182)"
+  },
+  {
+    "objectID": "changelog.html#section",
+    "href": "changelog.html#section",
+    "title": "Changelog",
+    "section": "",
+    "text": "Bumped version of biotite to install 0.36.1"
+  },
+  {
+    "objectID": "changelog.html#section-1",
+    "href": "changelog.html#section-1",
+    "title": "Changelog",
+    "section": "",
+    "text": "Fix for custom selections panel with MDAnalysis import.\nBlender crashed when using MDAnlysis import filter, if bonds were present in the topology. (#177)\n\nFixed created during refactor that disabled the custom selection list for MD import."
+  },
+  {
+    "objectID": "changelog.html#section-2",
+    "href": "changelog.html#section-2",
+    "title": "Changelog",
+    "section": "",
+    "text": "Custom text input for creating selections of res_id ranges and indivual numbers thanks to @YaoYinYing (#149), enabling quicker creation of complex selections inside of Molecular Nodes.\n\n\n\n\n\nRefactor of package installation via pip, to help with those who require pip mirrors and provide more information when installation fails on ARM macs. (#162)\nRemoved redundant python submodules and general cleanup"
+  },
+  {
+    "objectID": "changelog.html#section-3",
+    "href": "changelog.html#section-3",
+    "title": "Changelog",
+    "section": "",
+    "text": "Change translations for other languages to bpy.app.translations.pgettext_data() from bpy.app.translations.pgettext() which reduces potential conflicts with other addons. (#147)\nFixed chain_id_unique not being added when importing via MDAnalysis, stopping custom nodes relying on chain information to break. (#156)"
+  },
+  {
+    "objectID": "changelog.html#section-4",
+    "href": "changelog.html#section-4",
+    "title": "Changelog",
+    "section": "",
+    "text": "Panel for adding multiple selection strings, which will become boolean attributes on the imported model when importing via MDAnalysis.\n\n\n\n\n\nBall and stick node sphers now support field input for scaling the radius\nError with initial node setup breaking when in non-english Blender UI (#139) contributed by @YaoYinYing\nProblems with biological assemblies failling on larger structures. (#143)\nProblem with Animate Frames node defaulting to wrong from range on start"
+  },
+  {
+    "objectID": "changelog.html#section-5",
+    "href": "changelog.html#section-5",
+    "title": "Changelog",
+    "section": "",
+    "text": "Issue on linux and with newer versions of Numpy where np.bool is deprecated and was erroring on import."
+  },
+  {
+    "objectID": "changelog.html#section-6",
+    "href": "changelog.html#section-6",
+    "title": "Changelog",
+    "section": "",
+    "text": "multi-model b_factor is added when importing from .pdb files via biotite #133\n‘Invert’ field option to atom_properties and other selection nodes to optionally invert the selection\nAdded better detection of ligands and modifcations (such as sugars) and a separate selection node for them. Currently ligands are stored on the res_name attribute, starting at 100 and incrementing one for each unique ligand.\n\n\n\n\n\ninclude_bonds option was not being utilised on MD import #132\nMOL_animate_res_wiggle was wiggling the OXT (res_name == 38) oxygen when a peptide chain ended. Added additional selection to not wiggle this atom, which should only ever appear when a peptide chain terminates.\nfixed import of vdw_radii for elements not supported by biotite (such as Fe) by moving vdw_radii to the data dictionary rather than relying on a function from biotite which had a limited dictionary for vdw_radii lookup"
+  },
+  {
+    "objectID": "changelog.html#section-7",
+    "href": "changelog.html#section-7",
+    "title": "Changelog",
+    "section": "",
+    "text": "atom_name attribute, which is a numerical representation of the atom name (C, CA, C5 etc)\n\nDicussed in #118\nAllows for more precise selections for new styling and animation nodes\n\nReimplemented amino acid ‘wiggle’ node: using the atom_name attribute\n\n3x faster with the improved atom_name attribute and refactor of the underlying nodes\n\nReimplemented the amino acid to curve node\nRibbon Style Nucleic: A ribbon representation for nucleic acids to complement the ribbon represenation of the proteins from alpha carbons. Enabled now thanks to the atom_name attribute.\nCapturing the Index field in the selection node before the selection occurs, and added an Index field input to the MOL_animate_frames node to enable selection to occur before animating between frames, if the Pre-Sel Index field is used in the Index field of the MOL_animate_frames node\nAdded cutoff field for limiting the interpolation of atoms between frames based on a distance cutoff\nAdded bonds through MDAnalysis import when a trajectory supports it #129\nAdded is_solvent, is_nucleic and is_peptide boolean attributes when importing via MDAnalysis\nAdded frame-specific attribute occupancy which is added to each frame of the trajectory when imported via MDAnalysis. #128\n\n\n\n\n\nChanged naming of MOL_style_atoms to MOL_style_atoms_cycles and MOL_style_ribbon to MOL_style_ribbon_protein"
+  },
+  {
+    "objectID": "changelog.html#section-8",
+    "href": "changelog.html#section-8",
+    "title": "Changelog",
+    "section": "",
+    "text": "CHANGELOG.md for tracking changes to the project\nIssue templates for GitHub issues\nProper support for Fields for ribbon width, enabling ‘licorice’ representation amoung others\nTooltips documentation for each of the custom node groups that can be added in Geometry Nodes\nMore selection nodes for distance, XYZ slice and whole residues.\nCustom selections using a string when importing via MDAnalysis #123\nAdded option to disable interpolation of atom positions between frames\nAdded node for animating any field between frames of a trajectory (no fields currently added on import, but used in the new Aniamte Frames backend)\nUVs are now available for the ribbon mesh style, idea from ErikMarklund and implemented by quellenform\n\n\n\n\n\nError when defaulting to connect_via_distance() when importing with ‘Find Bonds’ enabled\nAdding of a color node which was mis-labelled and couldn’t be added\nNon-.gro topology files were failling to add vdw_radii attribute #124\nRemove use of np.int which is now deprecated and was causing errors when linking python on M1 Mac\nAttributes now available on ribbon mesh which are sampled from backbone\nChanged starting material to be appended instead of created, which should avoid duplication of material."
+  },
+  {
+    "objectID": "changelog.html#section-9",
+    "href": "changelog.html#section-9",
+    "title": "Changelog",
+    "section": "",
+    "text": "Error on reporting the success of improting a molecule"
+  },
+  {
+    "objectID": "changelog.html#section-10",
+    "href": "changelog.html#section-10",
+    "title": "Changelog",
+    "section": "",
+    "text": "Remove usage of Atomium and switched to Biotite for most internal structural file parsing\nRemoved reliance upon Serpens to build the addon. Can now be developed by anybody without the requirements of additional Blender addons.\n\nAspects of the addon can now have changes tracked properly by git, rather than inside a binary .blend Serpens file.\nNow also allows easier and clearer contributions from others who wish to contribute\nCustom node trees still remain opaque to git unfortunately\n\nAttributes are now created and stored on the molecular model itself, removing the need for properties models that store the data XYZ positions. Makes the import process clearer, more robust and more easily expandable.\nBond information is available by default as edges of the mesh along with bond types\nImprove MDAnalysis installation and usage internally\nExpose operators and functions to Blender Python console to enable user scripting with the addon\n\nimport MolecularNodes as mn\n\n# to fetch structures from the protein data bank\nstruc_list = ['4ozs', '1xi4', '6n2y']\nfor pdb in struc_list:\n    mn.load.molecule_rcsb(pdb, starting_style = 1)\n\n# to open a local structure file\nmn.load.molecule_local('file_path_here.pdb', 'SomeMoleculeName', starting_style = 2)"
   },
   {
     "objectID": "documentation.html",
@@ -19,6 +103,27 @@
     "title": "Documentation",
     "section": "",
     "text": "The Molecular Nodes panel can be accessed in the scene properties tab. This panel can additionally be accessed inside the 3D viewport’s N-panel if enabled in the preferences of Molecular Nodes.\n\nThere are currently three methods for importing structures via Molecular Nodes into Blender.\nYou can download from the PDB with the PDB tab, open a local .pdb or .mmcif file with the Local File tab, or open a Molecular Dynamics trajectory on the MD Trajectory tab.\nEach tab has a set of import options and fields to accept PDB IDs, names and file locations.\n\n\n\n\n\nField for the 4-letter PDB ID to be input, and button to start the download and import process.\n\n\n\nWhether or not to try and calculate bond information on the structure during import. Can be very slow for large structures, or if also building a biological assembly. The Cutoff represents the same cutoff value that is used inside of the PyMol bond detection.\n\n\n\nWhether or not to build the biological assembly, such as the full virus capsid, from the symmetry information that is present inside of the file. Assembly ID chooses which assembly information inside of the file to build from.\n\n\n\nInside of structure files, the base unit is usually 1 Å, which will become 1 m inside of Blender and 1 nm will become 10 m. To scale things down to a more manageable size we re-scale the structure so that 1 nm will become 1 m.\n\n\n\n\n\n\n\nAn optional name to be given to the structure on import.\n\n\n\nThe path to the structure file to be opened.\n\n\n\nWhether or not to try and calculate bond information on the structure during import. Can be very slow for large structures, or if also building a biological assembly. The Cutoff represents the same cutoff value that is used inside of the PyMol bond detection.\n\n\n\nWhether or not to build the biological assembly, such as the full virus capsid, from the symmetry information that is present inside of the file. Assembly ID chooses which assembly information inside of the file to build from.\n\n\n\nInside of structure files, the base unit is usually 1 Å, which will become 1 m inside of Blender and 1 nm will become 10 m. To scale things down to a more manageable size we re-scale the structure so that 1 nm will become 1 m.\n\n\n\n\n\n\n\nAn optional name to be given to the structure on import.\n\n\n\nThe file path to the toplogy file for import. See the table of supported topology formats for the formats that should be importable by Molecular Nodes.\n\n\n\nThe file path to the trajectory file for import. See the table of supported trajectory formats for the formats that should be importable by Molecular Nodes.\n\n\n\n\nStart Frame: The first possible frame from the coordinate file to be imported into Blender\nInterval: Imports every n th frame from the trajectory. 1 will import all frames from the trajectory.\nEnd Frame: The last possible frame from the coordinate file to be imported into Blender.\n\n\n\n\nInside of structure files, the base unit is usually 1 Å, which will become 1 m inside of Blender and 1 nm will become 10 m. To scale things down to a more manageable size we re-scale the structure so that 1 nm will become 1 m."
+  },
+  {
+    "objectID": "documentation.html#pdb-tab",
+    "href": "documentation.html#pdb-tab",
+    "title": "Documentation",
+    "section": "",
+    "text": "Field for the 4-letter PDB ID to be input, and button to start the download and import process.\n\n\n\nWhether or not to try and calculate bond information on the structure during import. Can be very slow for large structures, or if also building a biological assembly. The Cutoff represents the same cutoff value that is used inside of the PyMol bond detection.\n\n\n\nWhether or not to build the biological assembly, such as the full virus capsid, from the symmetry information that is present inside of the file. Assembly ID chooses which assembly information inside of the file to build from.\n\n\n\nInside of structure files, the base unit is usually 1 Å, which will become 1 m inside of Blender and 1 nm will become 10 m. To scale things down to a more manageable size we re-scale the structure so that 1 nm will become 1 m."
+  },
+  {
+    "objectID": "documentation.html#local-file-tab",
+    "href": "documentation.html#local-file-tab",
+    "title": "Documentation",
+    "section": "",
+    "text": "An optional name to be given to the structure on import.\n\n\n\nThe path to the structure file to be opened.\n\n\n\nWhether or not to try and calculate bond information on the structure during import. Can be very slow for large structures, or if also building a biological assembly. The Cutoff represents the same cutoff value that is used inside of the PyMol bond detection.\n\n\n\nWhether or not to build the biological assembly, such as the full virus capsid, from the symmetry information that is present inside of the file. Assembly ID chooses which assembly information inside of the file to build from.\n\n\n\nInside of structure files, the base unit is usually 1 Å, which will become 1 m inside of Blender and 1 nm will become 10 m. To scale things down to a more manageable size we re-scale the structure so that 1 nm will become 1 m."
+  },
+  {
+    "objectID": "documentation.html#md-trajectory-tab",
+    "href": "documentation.html#md-trajectory-tab",
+    "title": "Documentation",
+    "section": "",
+    "text": "An optional name to be given to the structure on import.\n\n\n\nThe file path to the toplogy file for import. See the table of supported topology formats for the formats that should be importable by Molecular Nodes.\n\n\n\nThe file path to the trajectory file for import. See the table of supported trajectory formats for the formats that should be importable by Molecular Nodes.\n\n\n\n\nStart Frame: The first possible frame from the coordinate file to be imported into Blender\nInterval: Imports every n th frame from the trajectory. 1 will import all frames from the trajectory.\nEnd Frame: The last possible frame from the coordinate file to be imported into Blender.\n\n\n\n\nInside of structure files, the base unit is usually 1 Å, which will become 1 m inside of Blender and 1 nm will become 10 m. To scale things down to a more manageable size we re-scale the structure so that 1 nm will become 1 m."
   },
   {
     "objectID": "documentation.html#properties",
@@ -75,6 +180,13 @@
     "title": "Getting Started",
     "section": "",
     "text": "This is a very basic introduction to Molecular Nodes. How to import a protein from the PDB & change the colour and style via editing the node graph. Molecular Nodes and Geometry Nodes in general has a lot more advanced functionality, and I encourage you to watch other YouTube tutorials and spend time playing around with it to see what is possible. Everything that I have achieved so far is through playing around to see what could be done."
+  },
+  {
+    "objectID": "getting-started.html#youtube-tutorials",
+    "href": "getting-started.html#youtube-tutorials",
+    "title": "Getting Started",
+    "section": "YouTube Tutorials",
+    "text": "YouTube Tutorials\nI have also made a series of YouTube tutorials walking through some of the functionality of Molecular Nodes. Currently this tutorial series is for the older version of Molecular Nodes and not the 2.0 version. The basic functionality and idea remain the same, but I will be updating this series once I get enough time."
   },
   {
     "objectID": "getting-started.html#the-molecularnodes-panel",
@@ -147,11 +259,18 @@
     "text": "Download the latest bundled release from the releases page. Don’t download the GitHub repo itself, as this won’t install inside of Blender.\n\n\n\n\n\n\nSafari\n\n\n\nWhen downloading on MacOS with Safari, it automatically unzips the file into a MolecularNodes folder. This is extremely unhelpful as Blender requires the .zip file to install the addon. Either download with a different browser, or compress the folder again to MolecularNodes.zip."
   },
   {
+    "objectID": "installation.html#downloading-molecularnodes",
+    "href": "installation.html#downloading-molecularnodes",
+    "title": "Installation",
+    "section": "",
+    "text": "Download the latest bundled release from the releases page. Don’t download the GitHub repo itself, as this won’t install inside of Blender.\n\n\n\n\n\n\nSafari\n\n\n\nWhen downloading on MacOS with Safari, it automatically unzips the file into a MolecularNodes folder. This is extremely unhelpful as Blender requires the .zip file to install the addon. Either download with a different browser, or compress the folder again to MolecularNodes.zip."
+  },
+  {
     "objectID": "installation.html#installing-the-addon",
     "href": "installation.html#installing-the-addon",
     "title": "Installation",
     "section": "Installing the Addon",
-    "text": "Installing the Addon\n\n\n\n\n\n\nWindows Administrator\n\n\n\nIf you are on Windows, you may need to run Blender as Administrator to successfully complete the following installation.\n\n\n\nOpen Preferences Panel\n\nClick `Edit’ -> ‘Preferences’ or press Cmd +  , on Mac.\n\n\n\n\nClick ‘Install’ while in ‘Add-ons’\n\n\n\nSelect MolecularNodes_X.zip\n\nThe X’s will be the current version number of the add-on."
+    "text": "Installing the Addon\n\n\n\n\n\n\nWindows Administrator\n\n\n\nIf you are on Windows, you may need to run Blender as Administrator to successfully complete the following installation.\n\n\n\nOpen Preferences Panel\n\nClick `Edit’ -&gt; ‘Preferences’ or press Cmd +  , on Mac.\n\n\n\n\nClick ‘Install’ while in ‘Add-ons’\n\n\n\nSelect MolecularNodes_X.zip\n\nThe X’s will be the current version number of the add-on."
   },
   {
     "objectID": "installation.html#installing-biotite-mdanalysis",
@@ -166,5 +285,19 @@
     "title": "Node Documentation",
     "section": "",
     "text": "The MOL_prop_setup node associates all of the different atomic properties with their corresponding atoms in the structure.\n\n\n\nAtoms: mesh vertices or point-cloud that are the XYZ locations of the atoms.\nProperties Collections: The collection that contains the NAME_properties_1 models that were imported alongside the structure.\n\n\n\n\nA boolean switch for each of the atomic properties. By default the properties are enabled, but they can be disable if required to provide a slight performance improvement if not required.\n\n\n\n\nAtoms (mesh vertices or point-cloud): that are the XYZ locations of the atoms, that also have named attributes for each of the atomic properties that were selected for set up.\natomic_number (integer field): integer number corresponding to the atomic number of the atom. Defaults to 0 if atomic_number cannot be determined.\nchain_number (integer field): integer number corresponding to the chain that the atom belongs to. Chains will be sorted into alphabetical order, then given a corresponding integer number starting from 1. Defaults to 0 if chain_number cannot be determined.\natom_name_number (integer field): integer number corresponding to the name of the atom within the structure (“CA” for the alpha carbon). Defaults to 0 if atom_name_number cannot be determined.\nAA_sequence_number (integer field): integer number corresponding to the sequence number of the amino acid in the structure that the atom belongs to. For LYS32 the AA_sequence_number will be 32. Defaults to 0 if AA_sequence_number cannot be determined.\nAA_name (integer field): integer number corresponding to the different residue names. Amino acids are numbered 1-20 based on alphabetical order. See the MOL_sel_AA_name node for the corresponding order.\natom_index (integer field): integer number corresponding to the order of the atom within the structure file.\nB_factor (float field): a float number corresponding to the value that was present in the B factor column, also known as the temperature factor.\nis_backbone (boolean field): a boolean value (TRUE or FALSE, 1 or 0) as to whether or not the atom is part of the backbone of the protein.\nis_alpha_carbon (boolean field): a boolean value (TRUE or FALSE, 1 or 0) as to whether or not the atom is an alpha carbon of the amino acid.\n\n\n\n\n\n\n\n\n\n\n\n\n\nThis node uses the is_alpha_carbon property and the chain_number properties to generate a ribbon-representation of the structure as a mesh. Options are available for the radius, smoothness and the resolution of the ribbon.\n\n\n\nAtoms (mesh vertices or point cloud): atoms that contain at least the is_alpha_carbon named attribute and the chain_number attribute to ensure the ribbons are separated by chain.\n\n\n\n\n\nRibbon (mesh): a mesh that is the ribbon representation of the structure.\nCurve (spline / curve): a curve that goes through all of the alpha carbons in the structure, that is used to build the final ribbon mesh."
+  },
+  {
+    "objectID": "nodes.html#properties",
+    "href": "nodes.html#properties",
+    "title": "Node Documentation",
+    "section": "",
+    "text": "The MOL_prop_setup node associates all of the different atomic properties with their corresponding atoms in the structure.\n\n\n\nAtoms: mesh vertices or point-cloud that are the XYZ locations of the atoms.\nProperties Collections: The collection that contains the NAME_properties_1 models that were imported alongside the structure.\n\n\n\n\nA boolean switch for each of the atomic properties. By default the properties are enabled, but they can be disable if required to provide a slight performance improvement if not required.\n\n\n\n\nAtoms (mesh vertices or point-cloud): that are the XYZ locations of the atoms, that also have named attributes for each of the atomic properties that were selected for set up.\natomic_number (integer field): integer number corresponding to the atomic number of the atom. Defaults to 0 if atomic_number cannot be determined.\nchain_number (integer field): integer number corresponding to the chain that the atom belongs to. Chains will be sorted into alphabetical order, then given a corresponding integer number starting from 1. Defaults to 0 if chain_number cannot be determined.\natom_name_number (integer field): integer number corresponding to the name of the atom within the structure (“CA” for the alpha carbon). Defaults to 0 if atom_name_number cannot be determined.\nAA_sequence_number (integer field): integer number corresponding to the sequence number of the amino acid in the structure that the atom belongs to. For LYS32 the AA_sequence_number will be 32. Defaults to 0 if AA_sequence_number cannot be determined.\nAA_name (integer field): integer number corresponding to the different residue names. Amino acids are numbered 1-20 based on alphabetical order. See the MOL_sel_AA_name node for the corresponding order.\natom_index (integer field): integer number corresponding to the order of the atom within the structure file.\nB_factor (float field): a float number corresponding to the value that was present in the B factor column, also known as the temperature factor.\nis_backbone (boolean field): a boolean value (TRUE or FALSE, 1 or 0) as to whether or not the atom is part of the backbone of the protein.\nis_alpha_carbon (boolean field): a boolean value (TRUE or FALSE, 1 or 0) as to whether or not the atom is an alpha carbon of the amino acid."
+  },
+  {
+    "objectID": "nodes.html#styling-nodes",
+    "href": "nodes.html#styling-nodes",
+    "title": "Node Documentation",
+    "section": "",
+    "text": "This node uses the is_alpha_carbon property and the chain_number properties to generate a ribbon-representation of the structure as a mesh. Options are available for the radius, smoothness and the resolution of the ribbon.\n\n\n\nAtoms (mesh vertices or point cloud): atoms that contain at least the is_alpha_carbon named attribute and the chain_number attribute to ensure the ribbons are separated by chain.\n\n\n\n\n\nRibbon (mesh): a mesh that is the ribbon representation of the structure.\nCurve (spline / curve): a curve that goes through all of the alpha carbons in the structure, that is used to build the final ribbon mesh."
   }
 ]
