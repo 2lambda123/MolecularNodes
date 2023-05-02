@@ -11,9 +11,11 @@ def molecule_rcsb(
     center_molecule = False,               
     del_solvent = True,               
     include_bonds = True,   
+    get_assemblies = True,
     starting_style = 0,               
     setup_nodes = True              
     ):
+    from .assembly import mmtf
     mol, file = open_structure_rcsb(
         pdb_code = pdb_code, 
         include_bonds=include_bonds
@@ -36,7 +38,10 @@ def molecule_rcsb(
             starting_style = starting_style
             )
     
-    mol_object['bio_transform_dict'] = file['bioAssemblyList']
+    
+    if get_assemblies:
+        assemblies = mmtf.MMTFAssemblyParser(file)
+        mol_object['bio_assemblies'] = assemblies.all_assemblies()
     
     return mol_object
 
